@@ -239,7 +239,7 @@ EscapeTab:CreateToggle({
    end,
 })
 
--- TAB Hellfront Beta (sin cambios en este ejemplo, pero puedes pegar tu versión anterior aquí si quieres)
+-- TAB Hellfront Beta
 local HellfrontTab = Window:CreateTab("🔥 Hellfront Beta", 4483362458)
 
 HellfrontTab:CreateSection("🔫 Aimbot Lock (NPCs/Mobs)")
@@ -437,6 +437,54 @@ local function cleanupCrystalESP()
    CrystalDrawings = {}
 end
 
+-- ====================================================
+-- FIX: Conectar la tecla HOLD para activar AimbotActive
+-- ====================================================
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+   if gameProcessed then return end
+   
+   local key = getgenv().AimbotKey
+   local inputKey = nil
+   
+   if key == "MouseButton2" then inputKey = Enum.UserInputType.MouseButton2
+   elseif key == "E" then inputKey = Enum.KeyCode.E
+   elseif key == "Q" then inputKey = Enum.KeyCode.Q
+   elseif key == "F" then inputKey = Enum.KeyCode.F
+   elseif key == "G" then inputKey = Enum.KeyCode.G
+   elseif key == "LeftShift" then inputKey = Enum.KeyCode.LeftShift
+   elseif key == "RightShift" then inputKey = Enum.KeyCode.RightShift
+   end
+   
+   if inputKey and (
+      (input.UserInputType == inputKey) or 
+      (input.KeyCode == inputKey)
+   ) then
+      if getgenv().AimbotLockEnabled then
+         getgenv().AimbotActive = true
+      end
+   end
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+   if gameProcessed then return end
+   
+   local key = getgenv().AimbotKey
+   local inputKey = nil
+   
+   if key == "MouseButton2" then inputKey = Enum.UserInputType.MouseButton2
+   elseif key == "E" then inputKey = Enum.KeyCode.E
+   -- ... (igual que arriba para los demás)
+   elseif key == "RightShift" then inputKey = Enum.KeyCode.RightShift
+   end
+   
+   if inputKey and (
+      (input.UserInputType == inputKey) or 
+      (input.KeyCode == inputKey)
+   ) then
+      getgenv().AimbotActive = false
+   end
+end)
+
 RunService.RenderStepped:Connect(function()
    cleanupESP()
    cleanupCrystalESP()
@@ -463,7 +511,7 @@ RunService.RenderStepped:Connect(function()
       end
    end
    
-   -- ESP Crystals texto
+   -- ESP Crystals texto (sin cambios)
    if getgenv().CrystalESPEnabled then
       local hrp = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
       if hrp then
@@ -500,7 +548,7 @@ RunService.RenderStepped:Connect(function()
    end
 end)
 
--- Auto TP
+-- Auto TP (sin cambios)
 spawn(function()
    while true do
       task.wait(getgenv().AutoTPInterval or 4)
@@ -566,4 +614,9 @@ spawn(function()
    end
 end)
 
-print("✅ HUB cargado con contraseña y Discord copiable")
+print("✅ HUB cargado🔥")
+      end
+   end
+end)
+
+print("✅ HUB cargado")

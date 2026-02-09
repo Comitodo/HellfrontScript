@@ -9,14 +9,45 @@ local Window = Rayfield:CreateWindow({
       FolderName = nil,
       FileName = "MultiHubProHellfrontEdit",
    },
-   KeySystem = false,
+   KeySystem = true,
+   KeySettings = {
+      Title = "Skyming Auth",
+      Subtitle = "Ingresa la contraseña",
+      Note = "La contraseña está en nuestro Discord oficial. Únete para obtenerla: https://discord.gg/SjNVwQ7Q",
+      FileName = "SkymingKey",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = "Anubissxxxx404"  -- Contraseña real
+   },
 })
 
+-- Notificación fija con botón para copiar Discord (aparece después de ingresar key)
 Rayfield:Notify({
-   Title = "Multi-Hub 🔥",
-   Content = "Hellfront Beta: Solo Aimbot NPC (activable/desactivable) + ESP Roja Silueta Mods + ESP Crystals Purple/Blue + Escaneo/TP a todos los cristales",
-   Duration = 7,
+   Title = "¡Bienvenido al Hub!",
+   Content = "Discord oficial para la contraseña y updates: https://discord.gg/SjNVwQ7Q\nPulsa el botón para copiar el link",
+   Duration = 15,  -- Más tiempo para que lo veas
    Image = 4483362458,
+   Actions = {
+      Ignore = {
+         Name = "Copiar Discord Link",
+         Callback = function()
+            if setclipboard then
+               setclipboard("https://discord.gg/SjNVwQ7Q")
+               Rayfield:Notify({
+                  Title = "¡Copiado!",
+                  Content = "Link copiado al portapapeles: https://discord.gg/SjNVwQ7Q",
+                  Duration = 5
+               })
+            else
+               Rayfield:Notify({
+                  Title = "No se pudo copiar",
+                  Content = "Tu executor no soporta copiar. Pega manualmente: https://discord.gg/SjNVwQ7Q",
+                  Duration = 8
+               })
+            end
+         end
+      }
+   }
 })
 
 -- TAB Lasso a Fish (sin cambios)
@@ -208,7 +239,7 @@ EscapeTab:CreateToggle({
    end,
 })
 
--- TAB Hellfront Beta - REEMPLAZADO por tu nuevo código
+-- TAB Hellfront Beta (sin cambios en este ejemplo, pero puedes pegar tu versión anterior aquí si quieres)
 local HellfrontTab = Window:CreateTab("🔥 Hellfront Beta", 4483362458)
 
 HellfrontTab:CreateSection("🔫 Aimbot Lock (NPCs/Mobs)")
@@ -241,7 +272,6 @@ HellfrontTab:CreateSlider({
    end,
 })
 
--- ESP Crystals (solo texto)
 HellfrontTab:CreateSection("💎 ESP Crystals (Solo Texto - Nombre + Distancia)")
 HellfrontTab:CreateToggle({
    Name = "ESP Crystals (Solo Texto)",
@@ -262,10 +292,8 @@ HellfrontTab:CreateSlider({
    end,
 })
 
--- TELEPORT MANUAL + AUTO
 HellfrontTab:CreateSection("✨ Teleport a Crystals")
 
--- Dropdown y Refresh (manual)
 local CrystalDropdown = HellfrontTab:CreateDropdown({
    Name = "Seleccionar Crystal para TP Manual",
    Options = {"Ninguno"},
@@ -342,7 +370,6 @@ HellfrontTab:CreateButton({
    end,
 })
 
--- AUTO TP (nuevo - usando BodyPosition + BodyGyro)
 HellfrontTab:CreateSection("🔄 Auto TP al Crystal más cercano")
 HellfrontTab:CreateToggle({
    Name = "Auto TP al Crystal más cercano",
@@ -374,7 +401,7 @@ HellfrontTab:CreateSlider({
 })
 
 -- ====================================================
--- Variables globales (necesarias para tu nuevo código)
+-- Variables globales necesarias
 -- ====================================================
 getgenv().AimbotLockEnabled = false
 getgenv().AimbotActive = false
@@ -388,7 +415,7 @@ getgenv().AutoTPMaxDist = 400
 getgenv().AutoTPInterval = 4
 
 -- ====================================================
--- Lógica Aimbot + ESP + Auto TP (tu código completo)
+-- Lógica Aimbot + ESP + Auto TP
 -- ====================================================
 
 local RunService = game:GetService("RunService")
@@ -410,63 +437,62 @@ local function cleanupCrystalESP()
    CrystalDrawings = {}
 end
 
--- Aimbot Lock (con distancia máxima)
 RunService.RenderStepped:Connect(function()
-   if not (getgenv().AimbotLockEnabled and getgenv().AimbotActive) then return end
+   cleanupESP()
+   cleanupCrystalESP()
    
-   local nearest, minDist = nil, getgenv().MaxAimbotDist + 1
-   local hrp = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
-   if not hrp then return end
-   
-   for _, model in ipairs(workspace:GetDescendants()) do
-      if model:IsA("Model") and model:FindFirstChild("Head") and model:FindFirstChild("Humanoid") 
-         and model ~= localPlayer.Character and not Players:GetPlayerFromCharacter(model) then
-         local dist = (model.Head.Position - hrp.Position).Magnitude
-         if dist < minDist then
-            minDist = dist
-            nearest = model
+   -- Aimbot Lock
+   if getgenv().AimbotLockEnabled and getgenv().AimbotActive then
+      local nearest, minDist = nil, getgenv().MaxAimbotDist + 1
+      local hrp = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+      if hrp then
+         for _, model in ipairs(workspace:GetDescendants()) do
+            if model:IsA("Model") and model:FindFirstChild("Head") and model:FindFirstChild("Humanoid") 
+               and model ~= localPlayer.Character and not Players:GetPlayerFromCharacter(model) then
+               local dist = (model.Head.Position - hrp.Position).Magnitude
+               if dist < minDist then
+                  minDist = dist
+                  nearest = model
+               end
+            end
+         end
+         if nearest and nearest.Head then
+            local targetCFrame = CFrame.lookAt(Camera.CFrame.Position, nearest.Head.Position)
+            Camera.CFrame = Camera.CFrame:Lerp(targetCFrame, 0.25)
          end
       end
    end
    
-   if nearest and nearest.Head then
-      local targetCFrame = CFrame.lookAt(Camera.CFrame.Position, nearest.Head.Position)
-      Camera.CFrame = Camera.CFrame:Lerp(targetCFrame, 0.25)  -- smooth
-   end
-end)
-
--- ESP Crystals solo texto (nombre + distancia)
-RunService.RenderStepped:Connect(function()
-   cleanupCrystalESP()
-   if not getgenv().CrystalESPEnabled then return end
-   
-   local hrp = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
-   if not hrp then return end
-   
-   local crystalsFolder = workspace:FindFirstChild("Crystals")
-   if not crystalsFolder then return end
-   
-   for _, folder in ipairs({crystalsFolder:FindFirstChild("Purple"), crystalsFolder:FindFirstChild("Blue")}) do
-      if folder then
-         for _, crystal in ipairs(folder:GetChildren()) do
-            if crystal:IsA("Model") and crystal.PrimaryPart then
-               local pos = crystal.PrimaryPart.Position
-               local dist = (pos - hrp.Position).Magnitude
-               if dist > getgenv().MaxCrystalDist then continue end
-               
-               local screenPos, onScreen = Camera:WorldToViewportPoint(pos)
-               if onScreen then
-                  local text = Drawing.new("Text")
-                  text.Position = Vector2.new(screenPos.X, screenPos.Y)
-                  text.Size = 17
-                  text.Color = folder.Name == "Purple" and Color3.fromRGB(200, 0, 255) or Color3.fromRGB(0, 150, 255)
-                  text.Outline = true
-                  text.OutlineColor = Color3.new(0,0,0)
-                  text.Center = true
-                  text.Font = 2
-                  text.Text = crystal.Name .. " (" .. math.floor(dist) .. "m)"
-                  text.Visible = true
-                  table.insert(CrystalDrawings, text)
+   -- ESP Crystals texto
+   if getgenv().CrystalESPEnabled then
+      local hrp = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+      if hrp then
+         local crystalsFolder = workspace:FindFirstChild("Crystals")
+         if crystalsFolder then
+            for _, folder in ipairs({crystalsFolder:FindFirstChild("Purple"), crystalsFolder:FindFirstChild("Blue")}) do
+               if folder then
+                  for _, crystal in ipairs(folder:GetChildren()) do
+                     if crystal:IsA("Model") and crystal.PrimaryPart then
+                        local pos = crystal.PrimaryPart.Position
+                        local dist = (pos - hrp.Position).Magnitude
+                        if dist > getgenv().MaxCrystalDist then continue end
+                        
+                        local screenPos, onScreen = Camera:WorldToViewportPoint(pos)
+                        if onScreen then
+                           local text = Drawing.new("Text")
+                           text.Position = Vector2.new(screenPos.X, screenPos.Y)
+                           text.Size = 17
+                           text.Color = folder.Name == "Purple" and Color3.fromRGB(200, 0, 255) or Color3.fromRGB(0, 150, 255)
+                           text.Outline = true
+                           text.OutlineColor = Color3.new(0,0,0)
+                           text.Center = true
+                           text.Font = 2
+                           text.Text = crystal.Name .. " (" .. math.floor(dist) .. "m)"
+                           text.Visible = true
+                           table.insert(CrystalDrawings, text)
+                        end
+                     end
+                  end
                end
             end
          end
@@ -474,7 +500,7 @@ RunService.RenderStepped:Connect(function()
    end
 end)
 
--- Auto TP al Crystal más cercano
+-- Auto TP
 spawn(function()
    while true do
       task.wait(getgenv().AutoTPInterval or 4)
@@ -540,4 +566,4 @@ spawn(function()
    end
 end)
 
-print("✅ HUB cargado - Hellfront Beta actualizado con nuevo código")
+print("✅ HUB cargado con contraseña y Discord copiable")

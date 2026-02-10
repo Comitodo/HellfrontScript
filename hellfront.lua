@@ -19,7 +19,8 @@ local Window = Rayfield:CreateWindow({
       Key = "DEADNOTE00003" -- Contraseña real
    },
 })
--- Notificación fija con botón para copiar Discord (aparece después de ingresar key)
+
+-- Notificación fija con botón para copiar Discord
 Rayfield:Notify({
    Title = "¡Bienvenido al Hub!",
    Content = "Discord oficial para la contraseña y updates: https://discord.gg/SjNVwQ7Q\nPulsa el botón para copiar el link",
@@ -47,7 +48,8 @@ Rayfield:Notify({
       }
    }
 })
--- TAB Lasso a Fish (sin cambios)
+
+-- TAB Lasso a Fish (intacto)
 local LassoTab = Window:CreateTab("🐟 Lasso a Fish", 4483362458)
 LassoTab:CreateSection("Autofarm & Movimiento")
 LassoTab:CreateToggle({
@@ -148,7 +150,8 @@ LassoTab:CreateButton({
       end
    end,
 })
--- TAB Escape Waves (sin cambios)
+
+-- TAB Escape Waves (intacto)
 local EscapeTab = Window:CreateTab("🌊 Escape Waves", 4483362458)
 EscapeTab:CreateSection("Auto Farm & Extras")
 EscapeTab:CreateToggle({
@@ -226,7 +229,8 @@ EscapeTab:CreateToggle({
       end
    end,
 })
--- TAB Hellfront Beta (sin cambios)
+
+-- TAB Hellfront Beta (con aimbot, ESP crystals, auto TP - intacto del script que mandaste)
 local HellfrontTab = Window:CreateTab("🔥 Hellfront Beta", 4483362458)
 HellfrontTab:CreateSection("🔫 Aimbot Lock (NPCs/Mobs)")
 HellfrontTab:CreateToggle({
@@ -316,7 +320,6 @@ HellfrontTab:CreateButton({
          Rayfield:Notify({Title = "Error", Content = "No se encontró Crystals", Duration = 4})
          return
       end
-     
       local function addCrystals(folder, color)
          if folder then
             for _, crystal in ipairs(folder:GetChildren()) do
@@ -326,10 +329,8 @@ HellfrontTab:CreateButton({
             end
          end
       end
-     
       addCrystals(crystalsFolder:FindFirstChild("Purple"), "Purple")
       addCrystals(crystalsFolder:FindFirstChild("Blue"), "Blue")
-     
       CrystalDropdown:Refresh(options, true)
       Rayfield:Notify({Title = "Lista Actualizada", Content = #options - 1 .. " cristales encontrados", Duration = 4})
    end,
@@ -341,10 +342,8 @@ HellfrontTab:CreateButton({
          Rayfield:Notify({Title = "Error", Content = "Selecciona un crystal primero", Duration = 4})
          return
       end
-     
       local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
       if not hrp then return end
-     
       local targetPos = getgenv().SelectedCrystal.PrimaryPart.Position + Vector3.new(0, 6, 0)
       hrp.CFrame = CFrame.new(targetPos)
       Rayfield:Notify({Title = "TP Manual", Content = "¡Teletransportado!", Duration = 3})
@@ -380,9 +379,7 @@ HellfrontTab:CreateSlider({
    end,
 })
 
--- ====================================================
--- Variables globales necesarias (intactas)
--- ====================================================
+-- Variables globales para Hellfront (intactas)
 getgenv().AimbotLockEnabled = false
 getgenv().AimbotActive = false
 getgenv().AimbotKey = "MouseButton2"
@@ -394,9 +391,7 @@ getgenv().AutoTPCrystalEnabled = false
 getgenv().AutoTPMaxDist = 400
 getgenv().AutoTPInterval = 4
 
--- ====================================================
--- Lógica Aimbot + ESP + Auto TP (intacta)
--- ====================================================
+-- Lógica Aimbot + ESP + Auto TP (intacta, la copio completa del script que mandaste)
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
@@ -404,23 +399,18 @@ local Camera = workspace.CurrentCamera
 local localPlayer = Players.LocalPlayer
 local ESPDrawings = {}
 local CrystalDrawings = {}
-
 local function cleanupESP()
    for _, d in pairs(ESPDrawings) do if d then d:Remove() end end
    ESPDrawings = {}
 end
-
 local function cleanupCrystalESP()
    for _, d in pairs(CrystalDrawings) do if d and d.Remove then d:Remove() end end
    CrystalDrawings = {}
 end
-
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
    if gameProcessed then return end
-  
    local key = getgenv().AimbotKey
    local inputKey = nil
-  
    if key == "MouseButton2" then inputKey = Enum.UserInputType.MouseButton2
    elseif key == "E" then inputKey = Enum.KeyCode.E
    elseif key == "Q" then inputKey = Enum.KeyCode.Q
@@ -429,7 +419,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
    elseif key == "LeftShift" then inputKey = Enum.KeyCode.LeftShift
    elseif key == "RightShift" then inputKey = Enum.KeyCode.RightShift
    end
-  
    if inputKey and (
       (input.UserInputType == inputKey) or
       (input.KeyCode == inputKey)
@@ -439,13 +428,10 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
       end
    end
 end)
-
 UserInputService.InputEnded:Connect(function(input, gameProcessed)
    if gameProcessed then return end
-  
    local key = getgenv().AimbotKey
    local inputKey = nil
-  
    if key == "MouseButton2" then inputKey = Enum.UserInputType.MouseButton2
    elseif key == "E" then inputKey = Enum.KeyCode.E
    elseif key == "Q" then inputKey = Enum.KeyCode.Q
@@ -454,7 +440,6 @@ UserInputService.InputEnded:Connect(function(input, gameProcessed)
    elseif key == "LeftShift" then inputKey = Enum.KeyCode.LeftShift
    elseif key == "RightShift" then inputKey = Enum.KeyCode.RightShift
    end
-  
    if inputKey and (
       (input.UserInputType == inputKey) or
       (input.KeyCode == inputKey)
@@ -462,11 +447,9 @@ UserInputService.InputEnded:Connect(function(input, gameProcessed)
       getgenv().AimbotActive = false
    end
 end)
-
 RunService.RenderStepped:Connect(function()
    cleanupESP()
    cleanupCrystalESP()
-  
    if getgenv().AimbotLockEnabled and getgenv().AimbotActive then
       local nearest, minDist = nil, getgenv().MaxAimbotDist + 1
       local hrp = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -487,7 +470,6 @@ RunService.RenderStepped:Connect(function()
          end
       end
    end
-  
    if getgenv().CrystalESPEnabled then
       local hrp = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
       if hrp then
@@ -500,7 +482,6 @@ RunService.RenderStepped:Connect(function()
                         local pos = crystal.PrimaryPart.Position
                         local dist = (pos - hrp.Position).Magnitude
                         if dist > getgenv().MaxCrystalDist then continue end
-                       
                         local screenPos, onScreen = Camera:WorldToViewportPoint(pos)
                         if onScreen then
                            local text = Drawing.new("Text")
@@ -523,20 +504,15 @@ RunService.RenderStepped:Connect(function()
       end
    end
 end)
-
 spawn(function()
    while true do
       task.wait(getgenv().AutoTPInterval or 4)
-     
       if not getgenv().AutoTPCrystalEnabled then continue end
-     
       local char = localPlayer.Character
       local hrp = char and char:FindFirstChild("HumanoidRootPart")
       if not hrp then continue end
-     
       local crystalsFolder = workspace:FindFirstChild("Crystals")
       if not crystalsFolder then continue end
-     
       local nearest, minDist = nil, getgenv().AutoTPMaxDist + 1
       for _, folder in ipairs({crystalsFolder:FindFirstChild("Purple"), crystalsFolder:FindFirstChild("Blue")}) do
          if folder then
@@ -551,13 +527,10 @@ spawn(function()
             end
          end
       end
-     
       if nearest and nearest.PrimaryPart and minDist <= getgenv().AutoTPMaxDist then
          local targetPos = nearest.PrimaryPart.Position + Vector3.new(0, 6, 0)
-        
          if hrp:FindFirstChild("AutoTPBodyPos") then hrp.AutoTPBodyPos:Destroy() end
          if hrp:FindFirstChild("AutoTPBodyGyro") then hrp.AutoTPBodyGyro:Destroy() end
-        
          local bp = Instance.new("BodyPosition")
          bp.Name = "AutoTPBodyPos"
          bp.MaxForce = Vector3.new(1e5, 1e5, 1e5)
@@ -565,7 +538,6 @@ spawn(function()
          bp.P = 15000
          bp.D = 1000
          bp.Parent = hrp
-        
          local bg = Instance.new("BodyGyro")
          bg.Name = "AutoTPBodyGyro"
          bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
@@ -573,13 +545,11 @@ spawn(function()
          bg.P = 15000
          bg.D = 1000
          bg.Parent = hrp
-        
          spawn(function()
             task.wait(2)
             if bp and bp.Parent then bp:Destroy() end
             if bg and bg.Parent then bg:Destroy() end
          end)
-        
          Rayfield:Notify({
             Title = "Auto TP Activo",
             Content = "Moviendo a " .. nearest.Name .. " (" .. math.floor(minDist) .. "m)",
@@ -589,15 +559,9 @@ spawn(function()
    end
 end)
 
-print("✅ HUB cargado🔥")
-
--- ====================================================
--- NUEVO TAB: Kayak and Surft (agregado exactamente como pediste)
--- ====================================================
+-- TAB Kayak and Surft (intacto del script actual)
 local KayakTab = Window:CreateTab("Kayak and Surft", 4483362458)
-
 KayakTab:CreateSection("Ejecutar Script Externo")
-
 KayakTab:CreateButton({
    Name = "Ejecutar Kayak & Surf Script",
    Callback = function()
@@ -610,12 +574,27 @@ KayakTab:CreateButton({
    end,
 })
 
--- Notificación final para confirmar el nuevo tab
+-- NUEVO TAB AGREGADO: Climb for Bairon (con el script que pediste anteriormente)
+local ClimbTab = Window:CreateTab("Climb for Bairon", 4483362458)
+ClimbTab:CreateSection("Ejecutar Script Externo SNWHUB")
+ClimbTab:CreateButton({
+   Name = "Cargar Climb for Bairon (SNWHUB)",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/therealkyosh/SNWHUB/b3a1aa2ad3b232f85aa44a32062a1ab450b5fb19/MainLoder"))()
+      Rayfield:Notify({
+         Title = "Script Cargado",
+         Content = "Climb for Bairon / SNWHUB script ejecutado correctamente 🔥",
+         Duration = 5
+      })
+   end,
+})
+
+-- Notificación final
 Rayfield:Notify({
-   Title = "Tab Kayak and Surft AGREGADO",
-   Content = "Nuevo tab con botón para ejecutar el script externo.\n¡Presiona K para ver todo!",
-   Duration = 5,
+   Title = "Hub Actualizado",
+   Content = "Tab 'Climb for Bairon' añadido con el script SNWHUB que pediste.\n¡Presiona K para abrir!",
+   Duration = 6,
    Image = 4483362458
 })
 
-print("✅ HUB cargado con tab Kayak and Surft agregado 🔥")
+print("✅ HUB cargado con Climb for Bairon (SNWHUB) añadido 🔥")
